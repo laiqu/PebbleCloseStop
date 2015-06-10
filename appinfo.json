@@ -1,0 +1,18 @@
+{
+  "uuid": "ea6f484a-c381-47ff-a806-95b0fae36d02",
+  "shortName": "close-stop",
+  "longName": "close-stop",
+  "companyName": "MakeAwesomeHappen",
+  "versionLabel": "1.0",
+  "versionCode": 1,
+  "sdkVersion": "3",
+  "targetPlatforms": ["aplite", "basalt"],
+  "watchapp": {
+    "watchface": false
+  },
+  "appKeys": {
+  },
+  "resources": {
+    "media": []
+  }
+}
