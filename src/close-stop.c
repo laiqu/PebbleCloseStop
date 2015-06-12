@@ -171,6 +171,8 @@ static void bus_window_load(Window *window) {
 
 static void bus_window_unload(Window *window) {
     menu_layer_destroy(bus_menu_layer);
+    available_lines[0][0] = 0;
+    time_strings[0][0] = 0;
     lines_count = 1;
 }
 

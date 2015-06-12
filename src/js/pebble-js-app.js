@@ -72,6 +72,10 @@ function sendMsg(data) {
     }
 }
 
+function sqDist(pos) {
+    return Math.pow(pos.x - currentPosition.x, 2) + Math.pow(pos.y - currentPosition.y, 2);
+}
+
 function getCloseStops(latitude, longitude) {
     var http = new XMLHttpRequest();
     http.open("GET",
@@ -81,7 +85,7 @@ function getCloseStops(latitude, longitude) {
         if (http.readyState == 4 && http.status == 200) {
             console.log(http.responseText);
             var json = JSON.parse(http.responseText);
-            json.sort(function(a, b) { return Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2); });
+            json.sort(function(a, b) { return sqDist(a) < sqDist(b); });
             var result = {};
             result[0] = 1;
             for (var i = 0; i < json.length; i++) {
@@ -103,13 +107,19 @@ function getLinesForStop(stop) {
             var json = JSON.parse(http.responseText);
             var index = 1;
             var current_hour = new Date().getHours();
+            var current_minutes = new Date().getMinutes();
             var lines = [];
             for (var sname in json)
             {
                 var time_str = "";
                 for (var hour in json[sname]) {
-                    if (hour >= current_hour && json[sname][hour].length !== '-') {
-                        time_str += hour + ":" + json[sname][hour] + ' ';  
+                    if (hour >= current_hour && json[sname][hour] !== '-') {
+                        var minutes = json[sname][hour].split(' ');
+                        while(minutes.length > 0 && parseInt(minutes[0]) < current_minutes) {
+                            minutes.shift();
+                        }
+                        if (minutes.length > 0)
+                            time_str += hour + ":" + minutes.join(' ') + ' ';  
                     }
                 }
                 if (time_str.length > 0) { 
