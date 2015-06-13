@@ -20,6 +20,7 @@ static MenuLayer *bus_menu_layer;
 static uint16_t lines_count = 1;
 static uint16_t close_stops_count = 0;
 static char available_stops[MAX_STOPS][MAX_NAME];
+static char distances[MAX_STOPS][MAX_NAME];
 static char available_lines[MAX_LINES][MAX_LINE_NAME];
 static char time_strings[MAX_LINES][MAX_TIME_LEN];
 
@@ -54,7 +55,7 @@ static void menu_draw_row_callback(GContext* ctx, const Layer *cell_layer, MenuI
             break;
           default:
             // This is a basic menu item with a title and subtitle
-            menu_cell_basic_draw(ctx, cell_layer, available_stops[cell_index->row - 1], NULL, NULL);
+            menu_cell_basic_draw(ctx, cell_layer, available_stops[cell_index->row - 1], NULL/*distances[cell_index->row - 1]*/, NULL);
             break;
         }
         break;
@@ -123,7 +124,7 @@ static int16_t bus_menu_get_header_height_callback(MenuLayer *menu_layer, uint16
 static void bus_menu_draw_header_callback(GContext* ctx, const Layer *cell_layer, uint16_t section_index, void *data) {
     switch (section_index) {
       case 0:
-        menu_cell_basic_header_draw(ctx, cell_layer, lines_count == 0 ? "Fetching..." : "Available lines:");
+        menu_cell_basic_header_draw(ctx, cell_layer, available_lines[0][0] == 0 ? "Fetching..." : "Available lines:");
         break;
     }
 }
@@ -202,10 +203,13 @@ static void inbox_received(DictionaryIterator* iterator, void* context) {
         while (tuple) {
             if (tuple->key != 0) {
                 if (tuple->key < MAX_STOPS) {
-                    strncpy(available_stops[tuple->key - 1], tuple->value->cstring,
+                    bool vtype = tuple->key % 2;
+                    char* dest = vtype ?
+                        available_stops[tuple->key / 2] : distances[(tuple->key - 1) / 2];
+                    strncpy(dest, tuple->value->cstring,
                             MAX_NAME > tuple->length ? MAX_NAME : tuple->length);
-                    available_stops[tuple->key -1][MAX_NAME - 1] = 0;
-                    close_stops_count++;
+                    dest[MAX_NAME - 1] = 0;
+                    if (vtype) close_stops_count++;
                 }
             }
             tuple = dict_read_next(iterator);

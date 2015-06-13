@@ -73,7 +73,8 @@ function sendMsg(data) {
 }
 
 function sqDist(pos) {
-    return Math.pow(pos.x - currentPosition.x, 2) + Math.pow(pos.y - currentPosition.y, 2);
+    return Math.pow(parseFloat(pos.x) - parseFloat(currentPosition.x), 2)
+         + Math.pow(parseFloat(pos.y) - parseFloat(currentPosition.y), 2);
 }
 
 function getCloseStops(latitude, longitude) {
@@ -85,11 +86,17 @@ function getCloseStops(latitude, longitude) {
         if (http.readyState == 4 && http.status == 200) {
             console.log(http.responseText);
             var json = JSON.parse(http.responseText);
-            json.sort(function(a, b) { return sqDist(a) < sqDist(b); });
+            json = json.sort(function(a, b) { return sqDist(a) - sqDist(b); });
             var result = {};
             result[0] = 1;
+            var index = 1;
+            var used = {};
             for (var i = 0; i < json.length; i++) {
-                result[i + 1] = json[i].data.name;
+                if (json[i].data.name !== undefined && !(json[i].data.name in used)) { 
+                    result[index++] = json[i].data.name;
+                    result[index++] = Math.sqrt(sqDist(json[i], currentPosition))*10000 + ' ';
+                    used[json[i].data.name] = true;
+                }
             }
             sendMsg(result);
         }
