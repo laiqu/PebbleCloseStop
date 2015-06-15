@@ -105,7 +105,8 @@ function getCloseStops(latitude, longitude) {
 }
 
 function getTimeStringFromJSon(json, maxLen, minHour) {
-  var result = "";
+   var result = "";
+   var current_minutes = new Date().getMinutes();
   
    for (var hour in json) {
       if ((minHour == -1 || hour >= minHour) && json[hour] !== '-') {
@@ -156,18 +157,18 @@ function getLinesForStop(stop) {
             
             lines.sort(function(a, b) 
             { 
-              var atime = a.split(' ')[0];
+              var atime = a[1].split(' ')[0];
               var ahour = atime.split(':')[0];
-              var aminute atime.split(':')[1];
+              var aminute = atime.split(':')[1];
               
-              var btime = b.split(' ')[0];
+              var btime = b[1].split(' ')[0];
               var bhour = btime.split(':')[0];
               var bminute = btime.split(':')[1];
               
               if(ahour == bhour)
-                return aminute < bminute;
+                return aminute - bminute;
                 
-              return ahour < bhour;
+              return ahour - bhour;
             });
             
             var result = {'0':2}
