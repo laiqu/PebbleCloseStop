@@ -122,7 +122,7 @@ function getLinesForStop(stop) {
                 for (var hour in json[sname]) {
                     if (hour >= current_hour && json[sname][hour] !== '-') {
                         var minutes = json[sname][hour].split(' ');
-                        while(minutes.length > 0 && parseInt(minutes[0]) < current_minutes) {
+                        while(minutes.length > 0 && parseInt(minutes[0]) < current_minutes && hour == current_hour) {
                             minutes.shift();
                         }
                         if (minutes.length > 0)
