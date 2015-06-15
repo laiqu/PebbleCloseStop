@@ -104,6 +104,29 @@ function getCloseStops(latitude, longitude) {
     http.send(null);
 }
 
+function getTimeStringFromJSon(json, maxLen, minHour) {
+  var result = "";
+  
+   for (var hour in json) {
+      if ((minHour == -1 || hour >= minHour) && json[hour] !== '-') {
+          var minutes = json[hour].split(' ');
+          if(minHour > -1 && hour == minHour) {
+              while(minutes.length > 0 && parseInt(minutes[0]) < current_minutes) {
+                  minutes.shift();
+              }
+          }
+          if (minutes.length > 0) {
+              result += hour + ":" + minutes.join(' ') + ' ';  
+          }
+          
+          if(result.length >= maxLen)
+            return result;
+      }
+  }
+  
+  return result;
+}
+
 function getLinesForStop(stop) {
     var http = new XMLHttpRequest();
     http.open("GET",
@@ -119,17 +142,14 @@ function getLinesForStop(stop) {
             for (var sname in json)
             {
                 var time_str = "";
-                for (var hour in json[sname]) {
-                    if (hour >= current_hour && json[sname][hour] !== '-') {
-                        var minutes = json[sname][hour].split(' ');
-                        while(minutes.length > 0 && parseInt(minutes[0]) < current_minutes && hour == current_hour) {
-                            minutes.shift();
-                        }
-                        if (minutes.length > 0)
-                            time_str += hour + ":" + minutes.join(' ') + ' ';  
-                    }
-                }
+                
+                time_str = getTimeStringFromJSon(json[sname], 25, current_hour);
+                
                 if (time_str.length > 0) { 
+                  if(time_str.length < 22) {
+                    time_str += getTimeStringFromJSon(json[sname], 25 - time_str.length, -1);
+                  }
+                  
                     lines.push([sname, time_str]);
                 }
             }
