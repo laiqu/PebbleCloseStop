@@ -153,7 +153,23 @@ function getLinesForStop(stop) {
                     lines.push([sname, time_str]);
                 }
             }
-            lines.sort();
+            
+            lines.sort(function(a, b) 
+            { 
+              var atime = a.split(' ')[0];
+              var ahour = atime.split(':')[0];
+              var aminute atime.split(':')[1];
+              
+              var btime = b.split(' ')[0];
+              var bhour = btime.split(':')[0];
+              var bminute = btime.split(':')[1];
+              
+              if(ahour == bhour)
+                return aminute < bminute;
+                
+              return ahour < bhour;
+            });
+            
             var result = {'0':2}
             lines.forEach(function(line) {
                 result[index++] = line[0];
